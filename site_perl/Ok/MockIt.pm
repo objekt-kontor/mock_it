@@ -24,30 +24,36 @@ my $REGISTRAR;
 ensure_module_loaded('Ok::MockIt::Mock');
 
 sub mock_it {
-  my ($class_to_mock) = @_;
+  my ($class_to_mock, @methods_to_insert) = _extract_mock_args(@_);
   
-  my $stub_class = make_stub($class_to_mock);
+  my $stub_class = make_stub($class_to_mock, @methods_to_insert);
+ 
   return bless {}, $stub_class;
 }
 
+sub _extract_mock_args {
+  my $class_to_mock = "";
+ 
+  #first argument is a string so it is a class name
+  $class_to_mock = shift if scalar(@_) && !ref($_[0]);
+  
+  my $methods_to_insert = shift;
+  my @methods_to_insert = @$methods_to_insert if $methods_to_insert;
+  
+  return ($class_to_mock, @methods_to_insert);
+}
+
 sub mock_as_property {
-  my ($property_name, $class_to_mock) = @_;
+  
+  my $property_name = shift;
+  
+  my $class_to_mock = shift;
   
   my $caller = caller(0);
  
-  my $stub_class = make_stub($class_to_mock);
+  my $stub_class = make_stub($class_to_mock, @_);
 
   _generate_caller_property($caller, $property_name, $stub_class);
-}
-
-sub fake_it {
-  my ($property_name, @methods) = @_;
-  
-  my $caller = caller(0);
-  
-  my $stub_class = make_stub(generate_fake_class(@methods));
-
-  _generate_caller_property($caller, $property_name, $stub_class); 
 }
 
 sub _generate_caller_property($$$) {
@@ -59,7 +65,7 @@ sub _generate_caller_property($$$) {
 sub make_stub($) {
   my $class_to_mock = shift;
   
-  Ok::MockIt::StubClassGenerator->new(_get_or_create_registrar())->generate_stubclass($class_to_mock);
+  Ok::MockIt::StubClassGenerator->new(_get_or_create_registrar())->generate_stubclass($class_to_mock, @_);
 }
 
 sub _get_or_create_registrar {

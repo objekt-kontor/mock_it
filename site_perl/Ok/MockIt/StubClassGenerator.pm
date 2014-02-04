@@ -18,16 +18,17 @@ around BUILDARGS => sub {
 no Moose;
 
 sub generate_stubclass {
-  my ($self, $super_class) = @_;
+  my ($self, $super_class, @fake_methods) = @_;
   
-  my @methods = list_module_functions($super_class);
+  $super_class = "" if $super_class eq "*";
+  my @methods = list_module_functions($super_class) if $super_class;
   my $stub_class = get_unique_classname($super_class);
   {
     no strict 'refs';
     @{ "${stub_class}::ISA" } = ($super_class, 'Ok::MockIt::Mock');
     *{ "${stub_class}::DESTROY" } = sub {};
   }
-  for my $m (@methods) {
+  for my $m (@methods, @fake_methods) {
     next if $m eq 'isa';
     next if $m eq 'DESTROY';
     {
@@ -45,5 +46,6 @@ sub generate_stubclass {
   
   return $stub_class;
 }
+
 
 __PACKAGE__->meta->make_immutable;

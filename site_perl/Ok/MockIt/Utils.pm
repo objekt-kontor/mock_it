@@ -14,9 +14,11 @@ sub get_unique_classname {
   
   my @chars = ("A".."Z", "a".."z");
   my $string = "";
+  
+  $wuerzel = $wuerzel ? "${wuerzel}::" : "";
   while(1) {
     $string .= $chars[rand @chars] for 1..8;
-    my $mod = "${wuerzel}::${string}";
+    my $mod = $wuerzel . ${string};
     return $mod unless Module::Load::Conditional::check_install( module => $mod );
   }
 }

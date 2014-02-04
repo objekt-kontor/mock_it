@@ -17,7 +17,7 @@ use Ok::MockIt::Executor::Die;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it mock_as_property fake_it do_return do_die verify);
+our @EXPORT_OK = qw(mock_it mock_as_property fake_it do_return do_die was_called);
 
 my $REGISTRAR;
 
@@ -79,7 +79,7 @@ sub do_die {
   return Ok::MockIt::InterceptorStubGenerator->new({executor => $executor, registrar => _get_or_create_registrar()});
 }
 
-sub verify {
+sub was_called {
   my ($mock_object, $count) = @_;
   
   my $args = {call_registrar => _get_or_create_registrar(), object => $mock_object};

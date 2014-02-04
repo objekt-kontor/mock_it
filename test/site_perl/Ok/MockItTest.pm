@@ -9,7 +9,7 @@ use warnings;
 use base qw(Test::Unit::TestCase);
 
 import TestPackage;
-use Ok::MockIt qw(verify do_return);
+use Ok::MockIt;
 
 sub test_mock_as_property__generates_named_property_in_caller_class {
   my $self = shift;
@@ -84,7 +84,7 @@ sub test_do_return__returns_specified_return_value_only_when_arguments_are_corre
   my $argument2 = "should not find"; 
   
   my $mocked_object = TestPackage->new->test_property;
-  do_return(50)->when($mocked_object)->method_that_dies($argument1);
+  Ok::MockIt::do_return(50)->when($mocked_object)->method_that_dies($argument1);
   
   $self->assert_null($mocked_object->method_that_dies($argument2));
   $self->assert_equals(50, $mocked_object->method_that_dies($argument1));
@@ -95,7 +95,7 @@ sub test_do_return__sets_return_value_for_mock_object_method {
  
   my $mocked_object = TestPackage->new->test_property;
   
-  do_return(100)->when($mocked_object)->method_that_dies;
+  Ok::MockIt::do_return(100)->when($mocked_object)->method_that_dies;
   
   my $value = $mocked_object->method_that_dies;
   
@@ -112,21 +112,17 @@ sub test_verify__does_not_thow_error_when_tested_method_has_been_called {
   $self->assert(1);
 }
 
-sub test_verify__throws_error_when_the_method_has_not_been_called_the_expected_number_of_times {
+sub test_verify__false_when_the_method_has_not_been_called_the_expected_number_of_times {
   my $self = shift;
   
   my $mocked_object = TestPackage->new->test_property;
   
   $mocked_object->method_that_dies;
   
-  eval { verify($mocked_object, 2)->method_that_dies; };
-  my $error = $@;
-
-  my $match = $error =~ /^method 'method_that_dies\(\)' called 1 times but expected: 2/;
-  $self->assert($match, $error);
+  $self->assert(not(Ok::MockIt::was_called($mocked_object, 2)->method_that_dies));
 }
 
-sub test_verify__throws_error_when_when_method_is_not_called_with_exactly_expected_arguments {
+sub test_verify__false_when_when_method_is_not_called_with_exactly_expected_arguments {
   my $self = shift;
   
   my $test_value = 1;
@@ -135,15 +131,10 @@ sub test_verify__throws_error_when_when_method_is_not_called_with_exactly_expect
   
   $mocked_object->method_that_dies($some_other_value);
   
-  eval { verify($mocked_object)->method_that_dies($test_value); };
-  my $error = $@;
-  
-  my $expected = "method 'method_that_dies(\n". YAML::Dump($test_value) . "\n)' called 0 times but expected: 1\n\nThere were 1 calls made\n\n(" . YAML::Dump($some_other_value) . "\n)\n";
-  $self->assert($error =~ /^\Q$expected/);
-  
+  $self->assert(not(Ok::MockIt::was_called($mocked_object)->method_that_dies($test_value)));
 }
 
-sub test_verify__can_compare_objects {
+sub test_was_called__can_compare_objects {
   my $self = shift;
   
   my $test_object   = TestPackage->new;
@@ -151,10 +142,8 @@ sub test_verify__can_compare_objects {
   
   $mocked_object->method_that_dies($test_object);
   
-  verify($mocked_object)->method_that_dies($test_object);
+  Ok::MockIt::was_called($mocked_object)->method_that_dies($test_object);
 }
-
-
 ###########################################
 package ModuleWithExportedFunction;
 
@@ -190,6 +179,7 @@ use Ok::MockIt qw(mock_as_property);
 mock_as_property test_property => 'MockPackage2';
 
 sub new { bless {}, shift }
+
 ###########################################
 
 1;

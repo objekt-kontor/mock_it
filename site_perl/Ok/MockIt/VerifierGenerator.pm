@@ -30,22 +30,8 @@ sub generate_class {
           my $mocked_method_call = Ok::MockIt::MockedMethodCall->new({object => $self->object, method => $m, args => [@args]});
           my @calls = $self->call_registrar->matches($mocked_method_call);
           my $calls_count = scalar(@calls);
-          unless( $calls_count == $expected_calls ) {
-            
-            my $args_msg = scalar(@args) ? "(\n" . YAML::Dump(@args) . "\n)" : "()";
-            my $calls_made = $self->call_registrar->all_calls_for_method($mocked_method_call);
-            my $method_call_log = "There were no calls made to the method " . $mocked_method_call->method();
-            if($calls_made) { 
-              my $method_calls = scalar(@$method_call_log);
-              $method_call_log = "There were " . scalar(@$calls_made) . " calls made";
-              
-              for my $call (@$calls_made) {
-                $method_call_log .= "\n\n(" . YAML::Dump(@{$call->args}) . "\n)\n";
-              }
-            } 
-            die "method '$m" . $args_msg . "' called " . $calls_count . ' times but expected: ' . $expected_calls . "\n\n$method_call_log";
-          }
-        };
+          return $calls_count == $expected_calls;
+      }
     }
   }
   {

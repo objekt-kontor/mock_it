@@ -17,13 +17,20 @@ use Ok::MockIt::Executor::Die;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it fake_it do_return do_die verify);
+our @EXPORT_OK = qw(mock_it mock_as_property fake_it do_return do_die verify);
 
 my $REGISTRAR;
 
 ensure_module_loaded('Ok::MockIt::Mock');
 
-sub mock_it($$) {
+sub mock_it {
+  my ($class_to_mock) = @_;
+  
+  my $stub_class = make_stub($class_to_mock);
+  return bless {}, $stub_class;
+}
+
+sub mock_as_property {
   my ($property_name, $class_to_mock) = @_;
   
   my $caller = caller(0);

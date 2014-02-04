@@ -11,7 +11,7 @@ use base qw(Test::Unit::TestCase);
 import TestPackage;
 use Ok::MockIt qw(verify do_return);
 
-sub test_mock_it__generates_named_property_in_caller_class {
+sub test_mock_as_property__generates_named_property_in_caller_class {
   my $self = shift;
   
   my $fake = TestPackage->new;
@@ -19,15 +19,21 @@ sub test_mock_it__generates_named_property_in_caller_class {
   $self->assert($fake->can('test_property'));
 }
 
-sub test_mock_it__generated_caller_property_returns_instance_of_wanted_package {
+sub test_mock_it__returns_mock_subclass_instance {
   my $self = shift;
   
-  my $fake = TestPackage->new;
   
-  $self->assert($fake->test_property->isa('MockPackage2'));
+  my $mock = Ok::MockIt::mock_it('MockPackage2');
+  
+  $self->assert($mock->isa('MockPackage2'));
+  $self->assert(ref($mock) ne 'MockPackage2');
+  
+  $self->assert($mock->can('method_that_dies') ? 1 : 0);
+  $self->assert($mock->can('test_exported_function') ? 1 : 0);
+  
 }
 
-sub test_mock_it__overwrites_all_methods_of_the_wanted_package_in_mocked_instance {
+sub test_mock_as_property__overwrites_all_methods_of_the_wanted_package_in_mocked_instance {
   my $self = shift;
   
   my $fake = TestPackage->new;
@@ -179,9 +185,9 @@ sub method_that_dies2 {
 ###########################################
 package TestPackage;
 
-use Ok::MockIt qw(mock_it);
+use Ok::MockIt qw(mock_as_property);
 
-mock_it test_property => 'MockPackage2';
+mock_as_property test_property => 'MockPackage2';
 
 sub new { bless {}, shift }
 ###########################################

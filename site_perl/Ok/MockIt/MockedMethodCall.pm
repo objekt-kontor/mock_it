@@ -1,5 +1,3 @@
-use utf8;
-
 package Ok::MockIt::MockedMethodCall;
 
 use vars qw(@ISA @EXPORT $VERSION $DEBUG %been_there);

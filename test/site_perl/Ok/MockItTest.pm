@@ -11,14 +11,6 @@ use base qw(Test::Unit::TestCase);
 import TestPackage;
 use Ok::MockIt;
 
-sub test_mock_as_property__generates_named_property_in_caller_class {
-  my $self = shift;
-  
-  my $fake = TestPackage->new;
-  
-  $self->assert($fake->can('test_property'));
-}
-
 sub test_mock_it__returns_mock_subclass_instance {
   my $self = shift;
   
@@ -115,7 +107,7 @@ sub test_verify__does_not_thow_error_when_tested_method_has_been_called {
 sub test_verify__false_when_the_method_has_not_been_called_the_expected_number_of_times {
   my $self = shift;
   
-  my $mocked_object = TestPackage->new->test_property;
+  my $mocked_object = Ok::MockIt::mock_it 'MockPackage2';
   
   $mocked_object->method_that_dies;
   
@@ -127,7 +119,8 @@ sub test_verify__false_when_when_method_is_not_called_with_exactly_expected_argu
   
   my $test_value = 1;
   my $some_other_value = 2;
-  my $mocked_object = TestPackage->new->test_property;
+  
+  my $mocked_object = Ok::MockIt::mock_it 'MockPackage2';
   
   $mocked_object->method_that_dies($some_other_value);
   
@@ -174,9 +167,9 @@ sub method_that_dies2 {
 ###########################################
 package TestPackage;
 
-use Ok::MockIt qw(mock_as_property);
+use Ok::MockIt qw(mock_it);
 
-mock_as_property test_property => 'MockPackage2';
+sub test_property { my $self = shift; $self->{mock} = mock_it 'MockPackage2' unless exists $self->{mock}; return $self->{mock} }
 
 sub new { bless {}, shift }
 

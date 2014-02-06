@@ -1,5 +1,3 @@
-use utf8;
-
 package Ok::MockIt;
 
 use strict;
@@ -17,16 +15,16 @@ use Ok::MockIt::Executor::Die;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it mock_as_property fake_it do_return do_die was_called);
+our @EXPORT_OK = qw(mock_it do_return do_die was_called);
 
 my $REGISTRAR;
 
 ensure_module_loaded('Ok::MockIt::Mock');
 
 sub mock_it {
-  my ($class_to_mock, @methods_to_insert) = _extract_mock_args(@_);
+  my $class_to_mock = shift;
   
-  my $stub_class = make_stub($class_to_mock, @methods_to_insert);
+  my $stub_class = Ok::MockIt::StubClassGenerator->new(_get_or_create_registrar())->generate_stubclass($class_to_mock);
  
   return bless {}, $stub_class;
 }
@@ -60,12 +58,6 @@ sub _generate_caller_property($$$) {
   my ($caller, $property_name, $stub_class) = @_;
   
   Ok::MockIt::MockInstanceProperty->new({property_package => $caller, property_name => $property_name, instance_package => $stub_class})->generate_property;
-}
-
-sub make_stub($) {
-  my $class_to_mock = shift;
-  
-  Ok::MockIt::StubClassGenerator->new(_get_or_create_registrar())->generate_stubclass($class_to_mock, @_);
 }
 
 sub _get_or_create_registrar {

@@ -1,5 +1,3 @@
-use utf8;
-
 package Ok::MockIt::Utils;
 
 use Module::Load::Conditional;
@@ -29,7 +27,6 @@ sub ensure_module_loaded {
   eval {
     (my $file = $module) =~ s|::|/|g;
     require $file . '.pm';
-    
   };
   $module->import();
 }

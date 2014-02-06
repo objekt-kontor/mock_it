@@ -26,18 +26,6 @@ sub test_new {
   $self->assert($generator->isa('Ok::MockIt::InterceptorStubGenerator'));
 }
 
-sub test_when__generates_stub_object_that_subclasses_mock_class {
-  my $self = shift;
-  
-  my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}, registrar => $self->{registrar}});
-  my $object = bless {}, 'InterceptorTestClass';
-  
-  my $stub = $generator->when($object);
-  
-  $self->assert($stub->isa('InterceptorTestClass'));
-  $self->assert('InterceptorTestClass' ne ref($stub));
-}
-
 sub test_when__generated_stub_class_registers_new_method_interceptor {
   my $self = shift;
   

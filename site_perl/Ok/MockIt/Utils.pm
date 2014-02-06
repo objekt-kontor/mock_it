@@ -5,7 +5,7 @@ use Class::Inspector;
 
 use Exporter qw(import);
 
-our @EXPORT = qw(get_unique_classname ensure_module_loaded list_module_functions generate_fake_class);
+our @EXPORT = qw(get_unique_classname ensure_module_loaded list_module_functions);
 
 sub get_unique_classname {
   my $wuerzel = shift;
@@ -39,17 +39,4 @@ sub list_module_functions {
   return keys(%functions);
 }
 
-sub generate_fake_class {
-  my @method_names = @_;
-  
-  my $class_name = get_unique_classname('FAKE');
-  {
-    no strict 'refs';
-    for my $m (@method_names) {
-      $full_name = "${class_name}::${m}";
-      *{$full_name} = sub {};
-    }
-  }
-  return $class_name;
-}
 1;

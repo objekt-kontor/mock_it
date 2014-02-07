@@ -1,28 +1,35 @@
 use Cwd 'abs_path';
 use Test::More tests => 34;
 
+
+BEGIN {
+  my $abs_path = abs_path(__FILE__);
+
+  my ($test_path) = $abs_path =~ /^(.*\/t\/).*/; 
+  my ($base_path) = $abs_path =~ /^(.*)\/t\/.*/;
+
+  push(@INC, $test_path, "$test_path/Ok", "$base_path/lib");
+}
+
 use Test::Unit::TestRunner;
 
 my $runner = OkTestRunner->new;
 $runner->do_run(Test::Unit::TestSuite->new('OkTests'), 0);
 
-#ok(1, $_) for (@{$runner->{passes}});
-#ok(0, $_) for (@{$runner->{fails}});
-
-#Test::Unit::TestRunner->run('OkTests');
-print "\nblah\n";
 package OkTestRunner;
 
 use base 'Test::Unit::TestRunner';
 
 use Test::More;
-sub add_error { ok(0, 'error'); my $self = shift; $self->{errors} = [] unless exists $self->{errors}; push @{$self->{fails}}, 'bummer'; }
-sub add_failure { ok(0, 'failure'); my $self = shift; $self->{fails} = [] unless exists $self->{fails}; push @{$self->{fails}}, 'boo'; }
-sub add_pass { ok(1, 'yay'); my $self = shift; $self->{passes} = [] unless exists $self->{passes}; push @{$self->{passes}}, 'yay'; }
+sub add_error { ok(0, 'Error: '. shift->{test_name});}
+sub add_failure { ok(0, 'Failure: ' . shift->{test_name});}
+sub add_pass { ok(1, shift->{test_name});}
 sub start_test {
     my $self = shift;
     my ($test) = @_;
-    #print ref($test) . "::" . $test->name . "\n";
+    
+   $self->{test_name} = ref($test) . "::" . $test->name . "\n";
+   #$self->_print($self->{test_name} . "\n");
 }
 sub print_result {}
 

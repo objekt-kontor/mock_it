@@ -1,5 +1,5 @@
 package Ok::MockIt::StubClassGenerator;
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 
 use Moose;
 

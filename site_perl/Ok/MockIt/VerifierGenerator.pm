@@ -7,7 +7,7 @@ has object          => (is => 'ro', isa => 'Ok::MockIt::Mock', required => 1);
 has expected_calls  => (is => 'ro', isa => 'Maybe[Int]');
 
 no Moose;
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use YAML;
 
 sub generate_class {

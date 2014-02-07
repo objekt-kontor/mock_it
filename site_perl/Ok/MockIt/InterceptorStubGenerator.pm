@@ -2,7 +2,7 @@ package Ok::MockIt::InterceptorStubGenerator;
 
 use Moose;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 use Ok::MockIt::MethodInterceptor;
 

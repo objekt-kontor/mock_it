@@ -1,4 +1,4 @@
-package Ok::MockIt::Utils;
+package Ok::MockIt::Class;
 
 use Module::Load::Conditional;
 use Class::Inspector;

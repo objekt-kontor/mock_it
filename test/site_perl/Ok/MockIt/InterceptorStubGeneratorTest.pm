@@ -7,7 +7,7 @@ use base 'Test::Unit::TestCase';
 use Ok::MockIt::InterceptorStubGenerator;
 use Ok::MockIt::Executor::SimpleReturn;
 use Ok::MockIt::MethodCallRegistrar;
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 
 ensure_module_loaded('Ok::MockIt::Mock');
 

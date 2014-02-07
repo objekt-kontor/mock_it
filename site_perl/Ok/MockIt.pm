@@ -3,7 +3,7 @@ package Ok::MockIt;
 use strict;
 use warnings;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 use Ok::MockIt::MethodCallRegistrar;
 use Ok::MockIt::StubClassGenerator;

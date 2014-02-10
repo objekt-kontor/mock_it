@@ -17,8 +17,8 @@ use Ok::MockIt::Executor::Die;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it fake_it do_return do_die verify);
-
+our @EXPORT_OK = qw(mock_it fake_it do_return do_die verify method_calls);
+	
 my $REGISTRAR;
 
 ensure_module_loaded('Ok::MockIt::Mock');
@@ -81,4 +81,9 @@ sub verify {
   return Ok::MockIt::VerifierGenerator->new($args)->create_verifier();
 }
 
+sub method_calls {
+  my ($mock_object, $method) = @_;
+  
+  _get_or_create_registrar()->all_calls_for_method(Ok::MockIt::MockedMethodCall->new({object => $mock_object, method => $method}));
+}
 1

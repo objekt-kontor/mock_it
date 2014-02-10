@@ -1,10 +1,8 @@
-use utf8;
-
 package Ok::MockIt::InterceptorStubGenerator;
 
 use Moose;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 use Ok::MockIt::MethodInterceptor;
 
@@ -35,19 +33,17 @@ sub register_call {
 sub _generate_registrar_stubclass {
   my ($self, $super_class) = @_;
   
-  my @methods = list_module_functions($super_class);
   my $stub_class = get_unique_classname($super_class);
-  for my $m (@methods) {
-    next if $m eq 'DESTROY';
-    {
-      no strict 'refs';
-      *{ "${stub_class}::${m}" } = sub {shift; $self->register_call($m, @_);};
-    }
-  }
+
   {
     no strict 'refs';
-    @{ "${stub_class}::ISA" } = ($super_class, 'Ok::MockIt::InterceptorStub');
-  } 
+    *{ "${stub_class}::AUTOLOAD" } = sub {
+        my ($p, $m) = our $AUTOLOAD =~ /(.*)::(.*)/;
+        shift; $self->register_call($m, @_);
+    };
+    *{ "${stub_class}::DESTROY" } = sub {};
+    @{ "${stub_class}::ISA" } = ('Ok::MockIt::InterceptorStub');
+  }
   
   return $stub_class;
 }

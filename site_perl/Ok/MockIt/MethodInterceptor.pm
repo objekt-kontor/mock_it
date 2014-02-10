@@ -1,12 +1,10 @@
-use utf8;
-
 package Ok::MockIt::MethodInterceptor;
 
 use Exporter qw(import);
 
 use Moose;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 
 my $MOCKED_CALLS = {};

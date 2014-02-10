@@ -1,5 +1,3 @@
-use utf8;
-
 package Ok::MockIt::MockInstanceProperty;
 
 use Moose;

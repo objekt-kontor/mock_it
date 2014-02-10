@@ -62,7 +62,7 @@ sub _get_interceptor {
 
 package RegistrarTest;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 
 ensure_module_loaded('Ok::MockIt::Mock');
 

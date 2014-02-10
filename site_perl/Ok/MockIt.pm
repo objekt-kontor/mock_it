@@ -15,7 +15,7 @@ use Ok::MockIt::Executor::Die;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it do_return do_die was_called);
+our @EXPORT_OK = qw(mock_it do_return do_die was_called method_calls);
 
 my $REGISTRAR;
 
@@ -60,9 +60,19 @@ sub _generate_caller_property($$$) {
   Ok::MockIt::MockInstanceProperty->new({property_package => $caller, property_name => $property_name, instance_package => $stub_class})->generate_property;
 }
 
+sub make_stub($) {
+  my $class_to_mock = shift;
+  
+  my $r = _get_or_create_registrar();
+  die 'registrar was not created' unless $REGISTRAR;
+  my $stubgen = Ok::MockIt::StubClassGenerator->new($r);
+  $stubgen->generate_stubclass($class_to_mock);
+}
+
 sub _get_or_create_registrar {
   
   $REGISTRAR = Ok::MockIt::MethodCallRegistrar->new() unless $REGISTRAR;
+  return $REGISTRAR;
 }
 
 sub do_return {
@@ -86,4 +96,10 @@ sub was_called {
   return Ok::MockIt::VerifierGenerator->new($args)->create_verifier();
 }
 
+sub method_calls {
+  my ($mock_object, $method) = @_;
+  
+  my $r = $REGISTRAR; 
+  $r->all_calls_for_method(Ok::MockIt::MockedMethodCall->new({object => $mock_object, method => $method}));
+}
 1

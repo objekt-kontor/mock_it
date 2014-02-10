@@ -1,17 +1,19 @@
 package Ok::MockIt::Executor::SimpleReturn;
+use strict;
+use warnings;
 
-use Moose;
-extends 'Ok::MockIt::Executor';
+use base qw(Ok::MockIt::Executor);
 
-around BUILDARGS => sub {
-  my ($original_method, $class) = (shift, shift);
+
+sub new {
+  my $class = shift;
   
-  my $args = [@_];
-  
-  return $class->$original_method({arguments => $args});
-};
+  return bless {arguments => [@_]}, $class; 
+}
 
-no Moose;
+sub arguments { [@{shift->{arguments}}] }
+
+sub args { @{shift->{arguments}} }
 
 sub execute {
   my $self = shift;
@@ -20,4 +22,4 @@ sub execute {
   return wantarray ? @values : shift @values;
 }
 
-__PACKAGE__->meta->make_immutable;
+1

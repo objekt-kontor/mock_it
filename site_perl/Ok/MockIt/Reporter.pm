@@ -24,7 +24,6 @@ sub _method_calls_header_str {
   
   my $call_count = $calls ? scalar(@$calls) : 0;
   return "Method $method called $call_count times.";
-  
 }
 
 sub _method_call_description {

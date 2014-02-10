@@ -52,12 +52,16 @@ sub _generate_caller_property($$$) {
 sub make_stub($) {
   my $class_to_mock = shift;
   
-  Ok::MockIt::StubClassGenerator->new(_get_or_create_registrar())->generate_stubclass($class_to_mock);
+  my $r = _get_or_create_registrar();
+  die 'registrar was not created' unless $REGISTRAR;
+  my $stubgen = Ok::MockIt::StubClassGenerator->new($r);
+  $stubgen->generate_stubclass($class_to_mock);
 }
 
 sub _get_or_create_registrar {
   
   $REGISTRAR = Ok::MockIt::MethodCallRegistrar->new() unless $REGISTRAR;
+  return $REGISTRAR;
 }
 
 sub do_return {
@@ -84,6 +88,7 @@ sub verify {
 sub method_calls {
   my ($mock_object, $method) = @_;
   
-  _get_or_create_registrar()->all_calls_for_method(Ok::MockIt::MockedMethodCall->new({object => $mock_object, method => $method}));
+  my $r = $REGISTRAR; 
+  $r->all_calls_for_method(Ok::MockIt::MockedMethodCall->new({object => $mock_object, method => $method}));
 }
 1

@@ -29,18 +29,6 @@ sub mock_it {
   return bless {}, $stub_class;
 }
 
-sub _extract_mock_args {
-  my $class_to_mock = "";
- 
-  #first argument is a string so it is a class name
-  $class_to_mock = shift if scalar(@_) && !ref($_[0]);
-  
-  my $methods_to_insert = shift;
-  my @methods_to_insert = @$methods_to_insert if $methods_to_insert;
-  
-  return ($class_to_mock, @methods_to_insert);
-}
-
 sub mock_as_property {
   
   my $property_name = shift;
@@ -63,6 +51,7 @@ sub _generate_caller_property($$$) {
 sub _get_or_create_registrar {
   
   $REGISTRAR = Ok::MockIt::MethodCallRegistrar->new() unless $REGISTRAR;
+  return $REGISTRAR;
 }
 
 sub do_return {

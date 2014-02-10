@@ -26,9 +26,25 @@ sub test_new {
   $self->assert($generator->isa('Ok::MockIt::InterceptorStubGenerator'));
 }
 
-sub test_when__generated_stub_class_registers_new_method_interceptor {
+sub test_new__dies_when_no_executor_provided {
   my $self = shift;
   
+  eval { my $generator = Ok::MockIt::InterceptorStubGenerator->new({registrar => $self->{registrar}}); };
+  my $error = $@;
+  
+  $self->assert($error =~ /^Executor must be provided when instanciating InterceptorStub/ );
+}
+
+sub test_new__dies_when_no_registrar_provided {
+  my $self = shift;
+  
+  eval { my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}}); };
+  my $error = $@;
+  $self->assert($error =~ /^MethodCallRegistrar must be provided when instanciating InterceptorStub/ );
+}
+
+sub test_when__generated_stub_class_registers_new_method_interceptor {
+  my $self = shift;
   
   my $registrar = Fake::Registrar->new();
   

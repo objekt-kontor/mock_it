@@ -1,16 +1,26 @@
 package Ok::MockIt::InterceptorStubGenerator;
 
-use Moose;
-
 use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 use Ok::MockIt::MethodInterceptor;
 
 
-has registrar => (is => 'ro', isa => 'Ok::MockIt::MethodCallRegistrar', required => 1);
-has executor  => (is => 'ro', isa => 'Ok::MockIt::Executor', required => 1);
-has object    => (is => 'ro', isa => 'Ok::MockIt::Mock', writer => '_object');
- 
+
+sub new {
+  my ($class, $args) = @_;
+  
+  die 'MethodCallRegistrar must be provided when instanciating InterceptorStub' unless exists($args->{registrar}) && ref($args->{registrar}) && $args->{registrar}->isa('Ok::MockIt::MethodCallRegistrar');
+  die 'Executor must be provided when instanciating InterceptorStub' unless exists($args->{executor}) && ref($args->{executor}) && $args->{executor}->isa('Ok::MockIt::Executor');
+  die 'Object for InterceptorStub must be a Mock' if exists($args->{object}) && !(ref($args->{object}) && $args->{object}->isa('Ok::MockIt::Mock'));
+  
+  return bless $args, $class;   
+}
+
+sub registrar { shift->{registrar} }
+sub executor { shift->{executor} }
+sub object { shift->{object} }
+sub _object { my ($s, $obj) = @_; shift->{object} = $obj } 
+
 sub when {
   my ($self, $mock_object) = @_;
   
@@ -47,10 +57,6 @@ sub _generate_registrar_stubclass {
   
   return $stub_class;
 }
-
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
 
 package Ok::MockIt::InterceptorStub;
 1

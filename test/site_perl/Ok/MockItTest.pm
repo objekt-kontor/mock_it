@@ -9,6 +9,7 @@ use warnings;
 use base qw(Test::Unit::TestCase);
 
 import TestPackage;
+
 use Ok::MockIt;
 
 sub test_mock_it__returns_mock_subclass_instance {
@@ -111,6 +112,7 @@ sub test_verify__false_when_the_method_has_not_been_called_the_expected_number_o
   
   $mocked_object->method_that_dies;
   
+  Ok::MockIt::was_called($mocked_object, 2)->method_that_dies;
   $self->assert(not(Ok::MockIt::was_called($mocked_object, 2)->method_that_dies));
 }
 

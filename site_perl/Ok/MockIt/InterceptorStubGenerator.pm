@@ -5,7 +5,6 @@ use Ok::MockIt::MockedMethodCall;
 use Ok::MockIt::MethodInterceptor;
 
 
-
 sub new {
   my ($class, $args) = @_;
   

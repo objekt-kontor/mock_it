@@ -1,14 +1,16 @@
 package Ok::MockIt::VerifierGenerator;
 
-use Moose;
+sub new {
+  my ( $class, $args ) = @_;
+  
+  bless $args, $class;
+}
 
-has call_registrar  => (is => 'ro', isa => 'Ok::MockIt::MethodCallRegistrar', required => 1);
-has object          => (is => 'ro', isa => 'Ok::MockIt::Mock', required => 1);
-has expected_calls  => (is => 'ro', isa => 'Maybe[Int]');
+sub call_registrar  { shift->{call_registrar} }
+sub object          { shift->{object} } 
+sub expected_calls  { shift->{expected_calls} } 
 
-no Moose;
 use Ok::MockIt::Class;
-use YAML;
 
 sub generate_class {
   my ($self) = shift; 
@@ -48,8 +50,6 @@ sub create_verifier {
   bless {}, $self->generate_class;
 }
 
-
-__PACKAGE__->meta->make_immutable;
 
 package MockObjectVerifier;
 1;

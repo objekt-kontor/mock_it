@@ -1,19 +1,21 @@
 package Ok::MockIt::StubClassGenerator;
+
+use strict; 
+use warnings;
+
 use Ok::MockIt::Class;
 
-use Moose;
-
-has call_registrar => (is => 'ro', isa => 'Ok::MockIt::MethodCallRegistrar', required => 1);
-
-
-around BUILDARGS => sub {
-  my ($original_method, $class) = (shift, shift);
+sub new {
+  my ($class, $call_registrar) = @_;
   
-  my $arg = shift;
-  return $class->$original_method($arg) if ref $arg eq 'HASH';
-  return $class->$original_method({call_registrar => $arg});  
-};
-no Moose;
+  $call_registrar = $call_registrar->{call_registrar} if ref($call_registrar) eq 'HASH';
+  
+  bless {call_registrar => $call_registrar}, $class;
+}
+
+
+
+sub call_registrar { shift->{call_registrar} } 
 
 sub generate_stubclass {
   my ($self, $super_class) = @_;
@@ -81,4 +83,4 @@ sub _register_call_and_execute_interceptor {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+1

@@ -1,10 +1,7 @@
-use utf8;
+package Ok::MockIt::MethodCallRegistrarTest;
 
 use strict;
 use warnings;
-
-package Ok::MockIt::MethodCallRegistrarTest;
-#TEST_TYPE:Unit
 
 use base qw(Test::Unit::TestCase);
 

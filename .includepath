@@ -2,5 +2,6 @@
 <includepath>
   <includepathentry path="${project_loc}/lib" />
   <includepathentry path="${project_loc}/t/" />
+  <includepathentry path="${project_loc:ok_test}/lib" />
 </includepath>
 

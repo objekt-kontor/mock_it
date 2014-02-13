@@ -1,35 +1,37 @@
-use utf8;
-
 package Ok::MockIt::Executor::SimpleReturnTest;
-#TEST_TYPE:Unit
 
-use base 'Test::Unit::TestCase';
+use strict;
+use warnings;
+
+use Ok::Test;
+use Test::Assert ':assert';
+
 
 use Ok::MockIt::Executor::SimpleReturn;
 
-sub test_new__accepts_any_arguments_and_maps_them_to_arguments_property {
+sub accepts_any_arguments_and_maps_them_to_arguments_property : Test('new') {
   my $self = shift;
   
   my $executor = Ok::MockIt::Executor::SimpleReturn->new(1, 2, 3);
   
   my $args = $executor->arguments;
-  $self->assert_deep_equals([1, 2, 3], $executor->arguments);
+  assert_deep_equals([1, 2, 3], $executor->arguments);
 }
 
-sub test_execute__returns_all_contructor_arguments {
+sub returns_all_contructor_arguments : Test('execute') {
   my  $self = shift;
   
   my $executor = Ok::MockIt::Executor::SimpleReturn->new(1, 2, 3);
   
-  $self->assert_deep_equals([1, 2, 3], [$executor->execute]);
+  assert_deep_equals([1, 2, 3], [$executor->execute]);
 }
 
-sub test_execute__returns_single_argument_in_non_scalar_context {
+sub returns_single_argument_in_non_scalar_context : Test('execute') {
   my $self = shift;
   
   my $executor = Ok::MockIt::Executor::SimpleReturn->new(qw(a b c ));
   
-  $self->assert_str_equals('a', $executor->execute);
+  assert_str_equals('a', $executor->execute);
 }
 
 1;

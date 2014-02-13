@@ -1,13 +1,11 @@
-use utf8;
-
 package Ok::MockIt::MockedMethodCallTest;
-#TEST_TYPE:Unit
 
-use base qw(Test::Unit::TestCase);
+use Ok::Test;
+use Test::Assert 'assert_true';
 
 use Ok::MockIt::MockedMethodCall;
 
-sub test_new {
+sub constructs_instance : Test('new') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -15,10 +13,10 @@ sub test_new {
   
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method });
   
-  $self->assert($call->isa('Ok::MockIt::MockedMethodCall'));
+  assert_true($call->isa('Ok::MockIt::MockedMethodCall'));
 }
 
-sub test_equals__is_true_when_self_is_compared {
+sub equals_is_true_when_self_is_compared : Test('equals') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -26,12 +24,11 @@ sub test_equals__is_true_when_self_is_compared {
   
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method });
   
-  $self->assert($call->equals($call));
+  assert_true($call->equals($call));
 }
 
-sub test_equals__is_true_when_objects_and_methods_are_equal_and_args_are_undef {
+sub equals_is_true_when_objects_and_methods_are_equal_and_args_are_undef : Test('equals') {
   my $self = shift;
-  
   
   my $object = bless {}, 'Ok::MockIt::Mock';
   my $method = 'test_method';
@@ -39,10 +36,10 @@ sub test_equals__is_true_when_objects_and_methods_are_equal_and_args_are_undef {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method });
   
-  $self->assert($call->equals($call2));
+  assert_true($call->equals($call2));
 }
 
-sub test_equals__is_false_when_methods_are_different {
+sub equals_is_false_when_methods_are_different : Test('equals') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -52,10 +49,10 @@ sub test_equals__is_false_when_methods_are_different {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method1});
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method2 });
   
-  $self->assert(!$call->equals($call2));
+  assert_true(!$call->equals($call2));
 }
 
-sub test_equals__is_false_when_object_instances_are_not_the_same {
+sub equals_is_false_when_object_instances_are_not_the_same : Test('equals') {
   my $self = shift;
   
   my $object1 = bless {}, 'Ok::MockIt::Mock';
@@ -65,10 +62,10 @@ sub test_equals__is_false_when_object_instances_are_not_the_same {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object1, method => $method });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object2, method => $method });
   
-  $self->assert(!$call->equals($call2));
+  assert_true(!$call->equals($call2));
 }
 
-sub test_equals__is_true_when_args_are_same {
+sub equals_is_true_when_args_are_same : Test('equals') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -79,10 +76,10 @@ sub test_equals__is_true_when_args_are_same {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method, args => [@args] });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method, args => [@args] });
   
-  $self->assert($call->equals($call2));
+  assert_true($call->equals($call2));
 }
 
-sub test_equals__is_false_when_args_are_different {
+sub equals_is_false_when_args_are_different : Test('equals') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -93,10 +90,10 @@ sub test_equals__is_false_when_args_are_different {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method, args => [@args] });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method, args => [@args, 3] });
   
-  $self->assert(!$call->equals($call2));
+  assert_true(!$call->equals($call2));
 }
 
-sub test_equals__is_false_when_args_in_one_object_are_undef {
+sub equals_is_false_when_args_in_one_object_are_undef : Test('equals') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -107,7 +104,7 @@ sub test_equals__is_false_when_args_in_one_object_are_undef {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method, args => [@args] });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method});
   
-  $self->assert(!$call->equals($call2));
+  assert_true(!$call->equals($call2));
 }
 
 

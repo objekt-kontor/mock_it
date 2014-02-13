@@ -1,13 +1,13 @@
 package Ok::MockIt::StubClassGeneratorTest;
 
 
-use base 'Test::Unit::TestCase';
+use Ok::Test;
+use Test::Assert 'assert_true';
 
 use Ok::MockIt::StubClassGenerator;
 use Ok::MockIt::MethodCallRegistrar;
 
-
-sub test_isa_is_overwritten_for_mocks_without_a_superclass {
+sub isa_is_overwritten_for_mocks_without_a_superclass : Test{
   my $self = shift;
   
   my $gen = Ok::MockIt::StubClassGenerator->new(Ok::MockIt::MethodCallRegistrar->new);
@@ -16,7 +16,7 @@ sub test_isa_is_overwritten_for_mocks_without_a_superclass {
   
   my $obj = bless {}, $class;
   
-  $self->assert($obj->isa('Anything'));
+  assert_true($obj->isa('Anything'));
 }
 
 sub test_can_is_overwritten_for_mocks_without_a_superclass {
@@ -25,7 +25,7 @@ sub test_can_is_overwritten_for_mocks_without_a_superclass {
   my $class = Ok::MockIt::StubClassGenerator->new(Ok::MockIt::MethodCallRegistrar->new)->generate_stubclass;
   my $obj = bless {}, $class;
   
-  $self->assert($obj->can('anything'));
+  assert_true($obj->can('anything'));
 }
 
 1;

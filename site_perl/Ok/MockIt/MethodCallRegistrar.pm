@@ -1,34 +1,61 @@
 package Ok::MockIt::MethodCallRegistrar;
 
-use Moose;
 use Ok::MockIt::MethodCallHistory;
 
+sub new {
+  my $class = shift;
+  
+  return bless {
+    _registered_calls         => {},
+    _registered_interceptors  => {}
+  }, $class;
+}
 
-has _registered_calls         => (
-  is => 'ro',
-  isa => 'HashRef[Ok::MockIt::MethodCallHistory]', 
-  init_arg => undef, 
-  default => sub{{}}, 
-  traits => ['Hash'], 
-  handles => { 
-      _get_method_history   => 'get', 
-      _has_method_history   => 'exists', 
-      _register_call        => 'set', 
-      _clear_method_history => 'delete' 
-  }
-);
+
+sub _registered_calls { shift->{_registered_calls} }
+
+sub _get_method_history { 
+  my ($self, $method_key) = @_;
+  
+  return unless exists $self->_registered_calls->{$method_key};
+  return $self->_registered_calls->{$method_key};
+}
+
+sub _has_method_history { 
+  my ($self, $method_key) = @_; 
+  
+  exists $self->_registered_calls->{$method_key}; 
+} 
+
+sub _register_call {
+  my ($self, $method_key, $method_call_history) = @_;
+  
+  return unless ref($method_call_history) && $method_call_history->isa('Ok::MockIt::MethodCallHistory');
+
+  $self->_registered_calls->{$method_key} = $method_call_history;
+};
       
-has _registered_interceptors  => (
-  is      => 'ro', 
-  isa     => 'HashRef[Ok::MockIt::MethodInterceptorContainer]', 
-  default => sub {{}},
-  traits  => ['Hash'],
-  handles => {
-    _register_interceptor_container => 'set',
-    _has_interceptors               => 'exists',
-    _get_interceptors               => 'get',
-  } 
-);
+sub _registered_interceptors { shift->{_registered_interceptors} }
+
+sub _register_interceptor_container {
+  my ($self, $method_key, $container) = @_;
+  
+  return unless ref($container) && $container->isa('Ok::MockIt::MethodInterceptorContainer');
+  $self->_registered_interceptors->{$method_key} = $container;
+}
+
+sub _has_interceptors {
+   my ($self, $method_key) = @_;
+   
+   exists $self->_registered_interceptors->{$method_key};
+}
+
+sub _get_interceptors  {
+  my ($self, $method_key) = @_;
+  
+  return unless $self->_has_interceptors($method_key);
+  return $self->_registered_interceptors->{$method_key};
+}
 
 sub register_call($) {
   my ($self, $mocked_method_call) = @_;
@@ -85,15 +112,27 @@ sub _get_or_create_interceptor_container {
 }
 
 
-no Moose;
-__PACKAGE__->meta->make_immutable;
-
 package Ok::MockIt::MethodInterceptorContainer;
 
-use Moose;
+sub new {
+  bless { _interceptors => [] }, $class;
+}
 
-has _interceptors =>  (is => 'ro', isa => 'ArrayRef[Ok::MockIt::MethodInterceptor]', default => sub {[]}, init_arg => undef, traits => ['Array'], 
-  handles => { _matches => 'grep',  interceptors => 'elements', _set => 'set'} );
+sub interceptors { my @ints = @{shift->_interceptors}; return @ints;}
+
+sub _interceptors { shift->{_interceptors} }
+
+sub _matches {
+  my ($self, $to_match) = @_;
+  
+  grep { $to_match->($_) } $self->interceptors; 
+}
+
+sub _set {
+  my ($self, $index, $interceptor) = @_;
+  
+  $self->_interceptors->[$index] = $interceptor;
+} 
   
 sub register_interceptor {
    my ($self, $interceptor) = @_;
@@ -121,7 +160,4 @@ sub _method_calls_match {
   return $m1->equals($m2);
 }
   
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
-
+1

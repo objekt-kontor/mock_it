@@ -1,3 +1,5 @@
+use utf8;
+
 package Ok::MockIt::MockedMethodCall;
 
 use vars qw(@ISA @EXPORT $VERSION $DEBUG %been_there);
@@ -5,15 +7,27 @@ use Carp;
 use Scalar::Util;
 use Data::Compare;
 
-use Moose;
-
 my %handler;
 
-has object  => (is => 'ro', isa => 'Ok::MockIt::Mock');
-has method  => (is => 'ro', isa => 'Str');
-has args    => (is => 'ro', isa => 'ArrayRef');
+sub new {
+  my $class = shift;
+  
+  my $args = shift;
+  
+  
+  my $self = bless {
+    object => exists($args->{object}) && ref($args->{object}) && $args->{object}->isa('Ok::MockIt::Mock') ? $args->{object} : undef,
+    method => $args->{method},
+    args   => $args->{argss}
+  }, $class;
+}
 
-no Moose;
+sub object { shift->{object} } 
+sub method { shift->{method} }
+sub args   { shift->{args} }
+
+
+
 sub simple_key {
   my $self = shift;
   
@@ -31,4 +45,4 @@ sub equals($) {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+1;

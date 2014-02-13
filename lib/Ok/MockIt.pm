@@ -1,5 +1,17 @@
 package Ok::MockIt;
 
+=head1 NAME
+
+Ok::MockIt - The great new Ok::MockIt!
+
+=head1 VERSION
+
+Version 0.01
+
+=cut
+
+our $VERSION = '0.01';
+
 use strict;
 use warnings;
 

@@ -1,10 +1,19 @@
 package Ok::MockIt::MockInstanceProperty;
 
-use Moose;
 
-has [qw(property_package property_name instance_package)] => ( is => 'ro', isa => 'Str');
+sub new {
+  my ($class, $args) = @_;
+  
+  bless {
+    property_package => $args->{property_package},
+    property_name    => $args->{property_name},
+    instance_package => $args->{instance_package}
+  }, $class;
+}
 
-no Moose;
+sub property_package {shift->{property_package} }
+sub property_name { shift->{property_name} }
+sub instance_package { shift->{instance_package} }
 
 sub generate_property {
   my $self = shift;
@@ -20,4 +29,5 @@ sub getter_setter {
   my $self = shift;
   $self->{property} = bless {}, 'package' unless $self->{property};
 }
-__PACKAGE__->meta->make_immutable;
+
+1

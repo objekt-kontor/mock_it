@@ -8,7 +8,7 @@ sub new {
 
 sub call_registrar  { shift->{call_registrar} }
 sub object          { shift->{object} } 
-sub expected_calls  { shift->expected_calls } 
+sub expected_calls  { shift->{expected_calls} } 
 
 use Ok::MockIt::Class;
 

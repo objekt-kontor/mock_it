@@ -1,6 +1,7 @@
 package Ok::MockIt::MethodCallRegistrar;
 
 use Ok::MockIt::MethodCallHistory;
+use Ok::MockIt::MethodInterceptorContainer;
 
 sub new {
   my $class = shift;
@@ -40,7 +41,7 @@ sub _registered_interceptors { shift->{_registered_interceptors} }
 sub _register_interceptor_container {
   my ($self, $method_key, $container) = @_;
   
-  return unless ref($container) && $container->isa('Ok::MockIt::MethodInterceptorContainer');
+  die "Not an interceptor container." unless ref($container) && $container->isa('Ok::MockIt::MethodInterceptorContainer');
   $self->_registered_interceptors->{$method_key} = $container;
 }
 
@@ -78,14 +79,14 @@ sub all_calls_for_method {
   return [$object_history->all_calls];
 }
 
-sub register_interceptor($) {
+sub register_interceptor {
   my ($self, $method_interceptor) = @_;
   
   my $container = $self->_get_or_create_interceptor_container($method_interceptor->mocked_method_call);
   $container->register_interceptor($method_interceptor);
 }
 
-sub find_interceptor($) {
+sub find_interceptor {
   my ($self, $mocked_method_call) = @_;
   
   my $interceptors = $self->_get_interceptors($mocked_method_call->simple_key);
@@ -111,53 +112,4 @@ sub _get_or_create_interceptor_container {
   return $self->_get_interceptors($mocked_method_call->simple_key);
 }
 
-
-package Ok::MockIt::MethodInterceptorContainer;
-
-sub new {
-  bless { _interceptors => [] }, $class;
-}
-
-sub interceptors { my @ints = @{shift->_interceptors}; return @ints;}
-
-sub _interceptors { shift->{_interceptors} }
-
-sub _matches {
-  my ($self, $to_match) = @_;
-  
-  grep { $to_match->($_) } $self->interceptors; 
-}
-
-sub _set {
-  my ($self, $index, $interceptor) = @_;
-  
-  $self->_interceptors->[$index] = $interceptor;
-} 
-  
-sub register_interceptor {
-   my ($self, $interceptor) = @_;
-   
-  my @interceptors = $self->interceptors;
-  my $x = 0;
-  for my $m ($self->interceptors) {
-    last if $self->_method_calls_match($m->mocked_method_call, $interceptor->mocked_method_call);
-    $x++;
-  }
-  $self->_set($x, $interceptor);
-}
-
-sub find_interceptor {
-  my ($self, $mocked_method_call) = @_;
-  
-  my @matches = $self->_matches( sub { $self->_method_calls_match($_->mocked_method_call, $mocked_method_call) } );
-  return shift @matches if scalar(@matches);
-  return;
-}
-
-sub _method_calls_match {
-  my ($self, $m1, $m2) = @_;
-  
-  return $m1->equals($m2);
-}
-  
 1

@@ -9,7 +9,7 @@ sub new {
 
 sub method { shift->{method} }
 
-sub calls { my @c = @{shift->{calls}}; return [@c]; }
+sub calls {  [@{shift->{calls}}] }
 
 sub _register_call {
   my ($self, $method_call) = @_;
@@ -17,7 +17,11 @@ sub _register_call {
   return unless ref($method_call) && $method_call->isa('Ok::MockIt::MockedMethodCall');
   push(@{$self->{calls}}, $method_call);
 }
-sub _grep_calls {}
+sub _grep_calls {
+  my ($self, $grep) = @_;
+  
+  grep { $grep->($_) } $self->all_calls;
+}
 
 sub  all_calls { @{shift->calls} }
 
@@ -25,7 +29,7 @@ sub matches($) {
   my ($self, $mocked_method_call) = @_;
   
   return () unless $mocked_method_call->method eq $self->method;
-  return $self->grep_calls(sub {$_->equals($mocked_method_call) } );
+  return $self->_grep_calls(sub {$_->equals($mocked_method_call) } );
 }
 
 sub register_call($) {

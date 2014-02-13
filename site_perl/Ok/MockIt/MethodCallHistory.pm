@@ -1,20 +1,26 @@
 package Ok::MockIt::MethodCallHistory;
 
-use Moose;
-
-has method => (is => 'ro', isa => 'Str', required => 1);
-has calls  => (is => 'ro', isa => 'ArrayRef[Ok::MockIt::MockedMethodCall]', default => sub {[]}, traits => ['Array'], handles => {_register_call => 'push', grep_calls => 'grep', all_calls => 'elements'});
-
-around BUILDARGS => sub {
-  my ($original_method, $class) = (shift, shift);
+sub new {
+  my ($class, $method) = @_;
   
-  my $args = shift;
-  return $class->$original_method($args) if ref($args) eq 'HASH';
-  
-  return $class->$original_method({method => $args});
-};
+  $method = $method->{method} if ref($method) eq 'HASH';
+  bless {method => $method, calls => []}, $class; 
+}
 
-no Moose;
+sub method { shift->{method} }
+
+sub calls { my @c = @{shift->{calls}}; return [@c]; }
+
+sub _register_call {
+  my ($self, $method_call) = @_;
+  
+  return unless ref($method_call) && $method_call->isa('Ok::MockIt::MockedMethodCall');
+  push(@{$self->{calls}}, $method_call);
+}
+sub _grep_calls {}
+
+sub  all_calls { @{shift->calls} }
+
 sub matches($) {
   my ($self, $mocked_method_call) = @_;
   
@@ -28,4 +34,5 @@ sub register_call($) {
   return unless $self->method eq $mocked_method_call->method;
   $self->_register_call($mocked_method_call);
 }
-__PACKAGE__->meta->make_immutable;
+
+1

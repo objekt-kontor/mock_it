@@ -1,22 +1,22 @@
-use utf8;
-
-package Ok::MockIt::Utils;
+package Ok::MockIt::Class;
 
 use Module::Load::Conditional;
 use Class::Inspector;
 
 use Exporter qw(import);
 
-our @EXPORT = qw(get_unique_classname ensure_module_loaded list_module_functions generate_fake_class);
+our @EXPORT = qw(get_unique_classname ensure_module_loaded list_module_functions);
 
 sub get_unique_classname {
   my $wuerzel = shift;
   
   my @chars = ("A".."Z", "a".."z");
   my $string = "";
+  
+  $wuerzel = $wuerzel ? "${wuerzel}::" : "";
   while(1) {
     $string .= $chars[rand @chars] for 1..8;
-    my $mod = "${wuerzel}::${string}";
+    my $mod = $wuerzel . ${string};
     return $mod unless Module::Load::Conditional::check_install( module => $mod );
   }
 }
@@ -27,7 +27,6 @@ sub ensure_module_loaded {
   eval {
     (my $file = $module) =~ s|::|/|g;
     require $file . '.pm';
-    
   };
   $module->import();
 }
@@ -40,17 +39,4 @@ sub list_module_functions {
   return keys(%functions);
 }
 
-sub generate_fake_class {
-  my @method_names = @_;
-  
-  my $class_name = get_unique_classname('FAKE');
-  {
-    no strict 'refs';
-    for my $m (@method_names) {
-      $full_name = "${class_name}::${m}";
-      *{$full_name} = sub {};
-    }
-  }
-  return $class_name;
-}
 1;

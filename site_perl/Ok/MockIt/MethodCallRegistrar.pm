@@ -1,36 +1,62 @@
-use utf8;
-
 package Ok::MockIt::MethodCallRegistrar;
 
-use Moose;
 use Ok::MockIt::MethodCallHistory;
+use Ok::MockIt::MethodInterceptorContainer;
+
+sub new {
+  my $class = shift;
+  
+  return bless {
+    _registered_calls         => {},
+    _registered_interceptors  => {}
+  }, $class;
+}
 
 
-has _registered_calls         => (
-  is => 'ro',
-  isa => 'HashRef[Ok::MockIt::MethodCallHistory]', 
-  init_arg => undef, 
-  default => sub{{}}, 
-  traits => ['Hash'], 
-  handles => { 
-      _get_method_history   => 'get', 
-      _has_method_history   => 'exists', 
-      _register_call        => 'set', 
-      _clear_method_history => 'delete' 
-  }
-);
+sub _registered_calls { shift->{_registered_calls} }
+
+sub _get_method_history { 
+  my ($self, $method_key) = @_;
+  
+  return unless exists $self->_registered_calls->{$method_key};
+  return $self->_registered_calls->{$method_key};
+}
+
+sub _has_method_history { 
+  my ($self, $method_key) = @_; 
+  
+  exists $self->_registered_calls->{$method_key}; 
+} 
+
+sub _register_call {
+  my ($self, $method_key, $method_call_history) = @_;
+  
+  return unless ref($method_call_history) && $method_call_history->isa('Ok::MockIt::MethodCallHistory');
+
+  $self->_registered_calls->{$method_key} = $method_call_history;
+};
       
-has _registered_interceptors  => (
-  is      => 'ro', 
-  isa     => 'HashRef[Ok::MockIt::MethodInterceptorContainer]', 
-  default => sub {{}},
-  traits  => ['Hash'],
-  handles => {
-    _register_interceptor_container => 'set',
-    _has_interceptors               => 'exists',
-    _get_interceptors               => 'get',
-  } 
-);
+sub _registered_interceptors { shift->{_registered_interceptors} }
+
+sub _register_interceptor_container {
+  my ($self, $method_key, $container) = @_;
+  
+  die "Not an interceptor container." unless ref($container) && $container->isa('Ok::MockIt::MethodInterceptorContainer');
+  $self->_registered_interceptors->{$method_key} = $container;
+}
+
+sub _has_interceptors {
+   my ($self, $method_key) = @_;
+   
+   exists $self->_registered_interceptors->{$method_key};
+}
+
+sub _get_interceptors  {
+  my ($self, $method_key) = @_;
+  
+  return unless $self->_has_interceptors($method_key);
+  return $self->_registered_interceptors->{$method_key};
+}
 
 sub register_call($) {
   my ($self, $mocked_method_call) = @_;
@@ -53,14 +79,14 @@ sub all_calls_for_method {
   return [$object_history->all_calls];
 }
 
-sub register_interceptor($) {
+sub register_interceptor {
   my ($self, $method_interceptor) = @_;
   
   my $container = $self->_get_or_create_interceptor_container($method_interceptor->mocked_method_call);
   $container->register_interceptor($method_interceptor);
 }
 
-sub find_interceptor($) {
+sub find_interceptor {
   my ($self, $mocked_method_call) = @_;
   
   my $interceptors = $self->_get_interceptors($mocked_method_call->simple_key);
@@ -86,44 +112,4 @@ sub _get_or_create_interceptor_container {
   return $self->_get_interceptors($mocked_method_call->simple_key);
 }
 
-
-no Moose;
-__PACKAGE__->meta->make_immutable;
-
-package Ok::MockIt::MethodInterceptorContainer;
-
-use Moose;
-
-has _interceptors =>  (is => 'ro', isa => 'ArrayRef[Ok::MockIt::MethodInterceptor]', default => sub {[]}, init_arg => undef, traits => ['Array'], 
-  handles => { _matches => 'grep',  interceptors => 'elements', _set => 'set'} );
-  
-sub register_interceptor {
-   my ($self, $interceptor) = @_;
-   
-  my @interceptors = $self->interceptors;
-  my $x = 0;
-  for my $m ($self->interceptors) {
-    last if $self->_method_calls_match($m->mocked_method_call, $interceptor->mocked_method_call);
-    $x++;
-  }
-  $self->_set($x, $interceptor);
-}
-
-sub find_interceptor {
-  my ($self, $mocked_method_call) = @_;
-  
-  my @matches = $self->_matches( sub { $self->_method_calls_match($_->mocked_method_call, $mocked_method_call) } );
-  return shift @matches if scalar(@matches);
-  return;
-}
-
-sub _method_calls_match {
-  my ($self, $m1, $m2) = @_;
-  
-  return $m1->equals($m2);
-}
-  
-no Moose;
-
-__PACKAGE__->meta->make_immutable;
-
+1

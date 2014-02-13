@@ -1,18 +1,22 @@
-use utf8;
-
 package Ok::MockIt::MethodInterceptor;
 
 use Exporter qw(import);
 
-use Moose;
-
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 use Ok::MockIt::MockedMethodCall;
 
 my $MOCKED_CALLS = {};
 
-has executor            => (is => 'ro', isa => 'Ok::MockIt::Executor', required => 1);
-has mocked_method_call  => (is => 'ro', isa => 'Ok::MockIt::MockedMethodCall', required => 1);
+sub new {
+  my ( $class, $args ) = @_;
+  
+  die 'No executor provieded.' unless exists $args->{executor} && $args->{executor}->isa('Ok::MockIt::Executor');
+  die 'No method call provieded.' unless exists $args->{mocked_method_call} && $args->{mocked_method_call}->isa('Ok::MockIt::MockedMethodCall');
+  
+  bless  $args, $class;
+}
+sub executor { shift->{executor} }            #=> (is => 'ro', isa => 'Ok::MockIt::Executor', required => 1);
+sub mocked_method_call  { shift->{mocked_method_call} } #=> (is => 'ro', isa => 'Ok::MockIt::MockedMethodCall', required => 1);
 
 sub execute {
   shift->executor->execute;
@@ -22,8 +26,6 @@ sub simple_key {
   shift->mocked_method_call->simple_key;
 }
 
-no Moose;
-__PACKAGE__->meta->make_immutable;
 #sub compares {
 #  my $class       = shift;
 #  my $method_name = shift;

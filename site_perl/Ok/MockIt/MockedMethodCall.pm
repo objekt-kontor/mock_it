@@ -7,15 +7,25 @@ use Carp;
 use Scalar::Util;
 use Data::Compare;
 
-use Moose;
-
 my %handler;
 
-has object  => (is => 'ro', isa => 'Ok::MockIt::Mock');
-has method  => (is => 'ro', isa => 'Str');
-has args    => (is => 'ro', isa => 'ArrayRef');
+sub new {
+  my $class = shift;
+  
+  my $args = shift;
+  
+  
+  my $self = bless {
+    object => exists($args->{object}) && ref($args->{object}) && $args->{object}->isa('Ok::MockIt::Mock') ? $args->{object} : undef,
+    method => $args->{method},
+    args   => $args->{args}
+  }, $class;
+}
 
-no Moose;
+sub object { shift->{object} } 
+sub method { shift->{method} }
+sub args   { shift->{args} }
+
 sub simple_key {
   my $self = shift;
   
@@ -25,7 +35,7 @@ sub simple_key {
 sub equals($) {
   my ($self, $other_call) = @_;
   
-  return 0 unless UNIVERSAL::isa($other_call, 'Ok::MockIt::MockedMethodCall');
+  return 0 unless ref($other_call) && $other_call->isa('Ok::MockIt::MockedMethodCall');
   return 0 unless Scalar::Util::refaddr($other_call->object) == Scalar::Util::refaddr($self->object);
   return 0 unless $self->method eq $other_call->method;
   return 1 if !defined($self->args) && !defined($other_call->args);
@@ -33,4 +43,4 @@ sub equals($) {
 }
 
 
-__PACKAGE__->meta->make_immutable;
+1;

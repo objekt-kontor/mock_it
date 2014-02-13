@@ -12,6 +12,7 @@ sub test_new__accepts_any_arguments_and_maps_them_to_arguments_property {
   
   my $executor = Ok::MockIt::Executor::SimpleReturn->new(1, 2, 3);
   
+  my $args = $executor->arguments;
   $self->assert_deep_equals([1, 2, 3], $executor->arguments);
 }
 

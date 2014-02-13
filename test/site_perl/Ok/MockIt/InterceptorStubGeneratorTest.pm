@@ -7,7 +7,8 @@ use base 'Test::Unit::TestCase';
 use Ok::MockIt::InterceptorStubGenerator;
 use Ok::MockIt::Executor::SimpleReturn;
 use Ok::MockIt::MethodCallRegistrar;
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
+use Test::Assert ':assert';
 
 ensure_module_loaded('Ok::MockIt::Mock');
 
@@ -23,24 +24,23 @@ sub test_new {
   
   my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}, registrar => $self->{registrar}});
   
-  $self->assert($generator->isa('Ok::MockIt::InterceptorStubGenerator'));
+  assert_true($generator->isa('Ok::MockIt::InterceptorStubGenerator'));
 }
 
-sub test_when__generates_stub_object_that_subclasses_mock_class {
+sub test_new__dies_when_no_executor_provided {
   my $self = shift;
   
-  my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}, registrar => $self->{registrar}});
-  my $object = bless {}, 'InterceptorTestClass';
-  
-  my $stub = $generator->when($object);
-  
-  $self->assert($stub->isa('InterceptorTestClass'));
-  $self->assert('InterceptorTestClass' ne ref($stub));
+  assert_raises("Executor must be provided when instanciating InterceptorStub",  sub { Ok::MockIt::InterceptorStubGenerator->new({registrar => $self->{registrar}}) });
 }
 
-sub test_when__generated_stub_class_registers_new_method_interceptor {
+sub test_new__dies_when_no_registrar_provided {
   my $self = shift;
   
+  assert_raises("MethodCallRegistrar must be provided when instanciating InterceptorStub", sub {Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}});} );
+}
+
+sub _test_when__generated_stub_class_registers_new_method_interceptor {
+  my $self = shift;
   
   my $registrar = Fake::Registrar->new();
   
@@ -51,9 +51,9 @@ sub test_when__generated_stub_class_registers_new_method_interceptor {
   
   my $registered_interceptor = $registrar->{registered_interceptor};
   
-  $self->assert($registered_interceptor->isa('Ok::MockIt::MethodInterceptor'));
-  $self->assert_equals('test_method', $registered_interceptor->mocked_method_call->method);
-  $self->assert_deep_equals(['test_arg'], $registered_interceptor->mocked_method_call->args);
+  assert_true($registered_interceptor->isa('Ok::MockIt::MethodInterceptor'));
+  assert_equals('test_method', $registered_interceptor->mocked_method_call->method);
+  assert_deep_equals(['test_arg'], $registered_interceptor->mocked_method_call->args);
 }
 
 

@@ -1,24 +1,32 @@
-use utf8;
-
 package Ok::MockIt::StubClassGenerator;
-use Ok::MockIt::Utils;
 
-use Moose;
+use strict; 
+use warnings;
 
-has call_registrar => (is => 'ro', isa => 'Ok::MockIt::MethodCallRegistrar', required => 1);
+use Ok::MockIt::Class;
 
-
-around BUILDARGS => sub {
-  my ($original_method, $class) = (shift, shift);
+sub new {
+  my ($class, $call_registrar) = @_;
   
-  my $arg = shift;
-  return $class->$original_method($arg) if ref $arg eq 'HASH';
-  return $class->$original_method({call_registrar => $arg});  
-};
-no Moose;
+  $call_registrar = $call_registrar->{call_registrar} if ref($call_registrar) eq 'HASH';
+  
+  bless {call_registrar => $call_registrar}, $class;
+}
+
+
+
+sub call_registrar { shift->{call_registrar} } 
 
 sub generate_stubclass {
   my ($self, $super_class) = @_;
+  
+  return $self->_generate_blind_stub unless $super_class;
+  return $self->_generate_subclass_stub($super_class);
+  
+}
+
+sub _generate_subclass_stub {
+  my ($self, $super_class) = @_; 
   
   my @methods = list_module_functions($super_class);
   my $stub_class = get_unique_classname($super_class);
@@ -26,19 +34,18 @@ sub generate_stubclass {
     no strict 'refs';
     @{ "${stub_class}::ISA" } = ($super_class, 'Ok::MockIt::Mock');
     *{ "${stub_class}::DESTROY" } = sub {};
+    
   }
   for my $m (@methods) {
+   
     next if $m eq 'isa';
     next if $m eq 'DESTROY';
     {
       no strict 'refs';
       *{ "${stub_class}::${m}" } = sub {
+  
         my $call = Ok::MockIt::MockedMethodCall->new({object => shift, method => $m, args => [@_]});
-        $self->call_registrar->register_call($call);
-        my $interceptor = $self->call_registrar->find_interceptor($call);
-        
-        return unless $interceptor;
-        $interceptor->execute;
+        return $self->_register_call_and_execute_interceptor($call);
       };
     }
   }
@@ -46,4 +53,34 @@ sub generate_stubclass {
   return $stub_class;
 }
 
-__PACKAGE__->meta->make_immutable;
+sub _generate_blind_stub {
+  my $self = shift;
+  
+  my $stub_class = get_unique_classname;
+  {
+    no strict 'refs';
+    *{ "${stub_class}::isa" }       = sub { 1 }; 
+    *{ "${stub_class}::can" }       = sub { 1 }; 
+    *{ "${stub_class}::AUTOLOAD" }  = sub {
+      my ($p, $m) = our $AUTOLOAD =~ /(.*)::(.*)/;
+      return if $m eq 'DESTROY';
+      my $call = Ok::MockIt::MockedMethodCall->new({object => shift, method => $m, args => [@_]});
+      
+      return $self->_register_call_and_execute_interceptor($call);
+    };
+  }
+  return $stub_class;
+}
+
+sub _register_call_and_execute_interceptor {
+  my ($self, $call) = @_;
+  
+  $self->call_registrar->register_call($call);
+  my $interceptor = $self->call_registrar->find_interceptor($call);
+      
+  return unless $interceptor;
+  return $interceptor->execute;
+}
+
+
+1

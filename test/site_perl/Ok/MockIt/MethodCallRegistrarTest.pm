@@ -1,10 +1,7 @@
-use utf8;
+package Ok::MockIt::MethodCallRegistrarTest;
 
 use strict;
 use warnings;
-
-package Ok::MockIt::MethodCallRegistrarTest;
-#TEST_TYPE:Unit
 
 use base qw(Test::Unit::TestCase);
 
@@ -62,7 +59,7 @@ sub _get_interceptor {
 
 package RegistrarTest;
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 
 ensure_module_loaded('Ok::MockIt::Mock');
 

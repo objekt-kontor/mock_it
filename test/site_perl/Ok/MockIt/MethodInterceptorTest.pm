@@ -25,7 +25,7 @@ sub test_new__sets_constructor_parameters_correctly {
 
 package Test::MockedClass; 
 
-use Ok::MockIt::Utils;
+use Ok::MockIt::Class;
 ensure_module_loaded('Ok::MockIt::Mock');
 use Ok::MockIt::Mock;
 our @ISA = qw(Ok::MockIt::Mock);

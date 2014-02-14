@@ -1,7 +1,7 @@
 package Ok::MockIt::MockedMethodCallTest;
 
 use Ok::Test;
-use Test::Assert 'assert_true';
+use Test::Assert ':assert';
 
 use Ok::MockIt::MockedMethodCall;
 
@@ -23,7 +23,6 @@ sub equals_is_true_when_self_is_compared : Test('equals') {
   my $method = 'test_method';
   
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method });
-  
   assert_true($call->equals($call));
 }
 
@@ -49,7 +48,7 @@ sub equals_is_false_when_methods_are_different : Test('equals') {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method1});
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object, method => $method2 });
   
-  assert_true(!$call->equals($call2));
+  assert_false($call->equals($call2));
 }
 
 sub equals_is_false_when_object_instances_are_not_the_same : Test('equals') {
@@ -62,7 +61,7 @@ sub equals_is_false_when_object_instances_are_not_the_same : Test('equals') {
   my $call = Ok::MockIt::MockedMethodCall->new({object => $object1, method => $method });
   my $call2 = Ok::MockIt::MockedMethodCall->new({object => $object2, method => $method });
   
-  assert_true(!$call->equals($call2));
+  assert_false($call->equals($call2));
 }
 
 sub equals_is_true_when_args_are_same : Test('equals') {

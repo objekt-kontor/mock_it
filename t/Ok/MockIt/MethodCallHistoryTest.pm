@@ -1,41 +1,42 @@
-use utf8;
-
 package Ok::MockIt::MethodCallHistoryTest;
-#TEST_TYPE:Unit
 
-use base qw(Test::Unit::TestCase);
+use strict;
+use warnings;
+
+use Ok::Test;
+use Test::Assert ':assert';
 
 use Ok::MockIt::MethodCallHistory;
 use Ok::MockIt::MockedMethodCall;
 
-sub test_new {
+sub instanciation_works : Test('new') {
   my $self = shift;
   
   my $test_method_name = 'test';
   my $history = Ok::MockIt::MethodCallHistory->new({method => $test_method_name});
   
-  $self->assert($history->isa('Ok::MockIt::MethodCallHistory'));
+  assert_true($history->isa('Ok::MockIt::MethodCallHistory'));
 }
 
-sub test_new__accepts_hash_as_argument {
+sub accepts_hash_as_argument : Test('new') {
   my $self = shift;
   
   my $test_method_name = 'test';
   my $history = Ok::MockIt::MethodCallHistory->new({method => $test_method_name});
   
-  $self->assert_str_equals($test_method_name, $history->method);
+  assert_str_equals($test_method_name, $history->method);
 }
 
-sub test_new__accepts_single_method_name_argument {
+sub accepts_single_method_name_argument : Test('new') {
   my $self = shift;
   
   my $test_method_name = 'test';
   my $history = Ok::MockIt::MethodCallHistory->new($test_method_name);
   
-  $self->assert_str_equals($test_method_name, $history->method);
+  assert_str_equals($test_method_name, $history->method);
 }
 
-sub test_matches__returns_undef_when_method_names_do_not_match {
+sub returns_undef_when_method_names_do_not_match : Test('matches') {
   my $self = shift;
   
   my $test_method_name1 = 'test1';
@@ -46,10 +47,10 @@ sub test_matches__returns_undef_when_method_names_do_not_match {
   my $object = bless {}, 'Ok::MockIt::Mock';
   my $method_call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $test_method_name2});
   
-  $self->assert_null($history->matches($method_call));
+  assert_null($history->matches($method_call));
 }
 
-sub test_matches__compares_against_each_element_in_the_object_callhistory {
+sub compares_against_each_element_in_the_object_callhistory : Test('matches') {
   my $self = shift;
   
   my $object = bless {}, 'Ok::MockIt::Mock';
@@ -72,7 +73,7 @@ sub test_matches__compares_against_each_element_in_the_object_callhistory {
   
   my @result = $history->matches($mocked_method_call1);
   
-  $self->assert_equals(2, scalar(@result));
+  assert_equals(2, scalar(@result));
   
 }
 

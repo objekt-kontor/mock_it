@@ -1,12 +1,14 @@
-use Ok::Test::Runner 'load_tests';
-
-use Ok::Test::StdOutReporter;
-
 use FindBin;
+use lib "$FindBin::Bin";
 use lib "$FindBin::Bin/../lib";
 
-load_tests($FindBin::Bin);
+use Ok::Test;
 
-my $runner = new Ok::Test::Runner({listener => Ok::Test::StdOutReporter->new});
+Ok::Test::Runner::load_tests($FindBin::Bin);
+
+use Test::More;
+plan tests => scalar(Ok::Test::get_loaded_tests) ;
+
+my $runner = new Ok::Test::Runner({listener => Ok::Test::TAPReporter->new});
 
 $runner->run;

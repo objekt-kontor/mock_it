@@ -19,17 +19,12 @@ my $params = {
         'Data::Compare'             => 0,
         'Exporter'                  => 0,
         'Module::Load::Conditional' => 0,
-        'Moose'                     => 0,
         'Scalar::Util'              => 0,
-        'Test::More'                => 0,
-        'Test::Unit::TestCase'      => 0,
-        'Test::Unit::TestRunner'    => 0,
-        'Test::Unit::TestSuite'     => 0,
-        'YAML'                      => 0       
+        'Test::More'                => 0,      
     },
     dist             => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean            => { FILES => 'Ok-MockIt-*' },
-    test             => { TESTS => 't/run_all.pl'}
+    test             => { TESTS => 't/ok_test_runner.pl'}
 };
 
 $params->{MIN_PERL_VERSION} = 5.008 if ($ExtUtils::MakeMaker::VERSION ge '6.47_02'); 

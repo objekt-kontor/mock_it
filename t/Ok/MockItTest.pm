@@ -40,59 +40,6 @@ sub overwrites_all_methods_of_the_wanted_package_in_mocked_instance : Test('mock
   assert_true(!$error, $error);
 }
 
-#sub test_list_module_functions__includes_mocked_class_methods {
-#  my $self = shift;
-#  
-#  my @methods = Ok::MockIt::list_module_functions('MockPackage2');
-#  my $m1 = grep { /^method_that_dies2$/ } @methods;
-#  assert_true($m1);
-#}
-#
-#sub test_list_module_functions__includes_superclass_methods {
-#  my $self = shift;
-#  
-#  my @methods = Ok::MockIt::list_module_functions('MockPackage2');
-#  my $m1 = grep { /^method_that_dies$/ } @methods;
-#  assert_true($m1);
-#}
-
-#sub test_list_module_functions__includes_imported_functions {
-#  my $self = shift;
-#  
-#  my @methods = Ok::MockIt::list_module_functions('MockPackage2');
-#  
-#  my $m1 = grep { /^test_exported_function$/ } @methods;
-#    
-#  assert_true($m1);
-#  
-#  my $mock;
-#}
-
-sub returns_specified_return_value_only_when_arguments_are_correct : Test('do_return') {
-  my $self = shift;
-  
-  my $argument1 = "should_find";
-  my $argument2 = "should not find"; 
-  
-  my $mocked_object = TestPackage->new->test_property;
-  Ok::MockIt::do_return(50)->when($mocked_object)->method_that_dies($argument1);
-  
-  assert_null($mocked_object->method_that_dies($argument2));
-  assert_equals(50, $mocked_object->method_that_dies($argument1));
-}
-
-sub do_return__sets_return_value_for_mock_object_method : Test('do_return'){
-  my $self = shift;
- 
-  my $mocked_object = TestPackage->new->test_property;
-  
-  Ok::MockIt::do_return(100)->when($mocked_object)->method_that_dies;
-  
-  my $value = $mocked_object->method_that_dies;
-  
-  assert_num_equals(100, $value);
-}
-
 sub verify_does_not_thow_error_when_tested_method_has_been_called : Test('verify') {
   my $self = shift;
   
@@ -137,6 +84,27 @@ sub was_called_can_compare_objects : Test('was_called') {
   
   Ok::MockIt::was_called($mocked_object)->method_that_dies($test_object);
 }
+
+sub when_and_do_return_correctly_return_value : Test('-', 'Acceptance'){
+  my $self = shift;
+  
+  my $mock = Ok::MockIt::mock_it();
+  
+  Ok::MockIt::when($mock)->sample_method(1)->do_return(5);
+  
+  assert_num_equals(5, $mock->sample_method(1));
+}
+
+sub when_and_do_return_correctly_track_method_call : Test('-', 'Acceptance'){
+  my $self = shift;
+  
+  my $mock = Ok::MockIt::mock_it();
+  
+  Ok::MockIt::when($mock)->sample_method(1)->do_return(5);
+  $mock->sample_method(1);
+  assert_true(Ok::MockIt::was_called($mock)->sample_method(1));
+}
+
 ###########################################
 package ModuleWithExportedFunction;
 

@@ -1,4 +1,4 @@
-package Ok::MockIt::InterceptorStubGeneratorTest;
+package Ok::MockIt::InterceptorRegistrarTest;
 
 use strict;
 use warnings;
@@ -6,7 +6,7 @@ use warnings;
 use Ok::Test;
 use Test::Assert ':assert';
 
-use Ok::MockIt::InterceptorStubGenerator;
+use Ok::MockIt::InterceptorRegistrar;
 use Ok::MockIt::Executor::SimpleReturn;
 use Ok::MockIt::MethodCallRegistrar;
 use Ok::MockIt::Class;
@@ -16,28 +16,28 @@ ensure_module_loaded('Ok::MockIt::Mock');
 sub set_up {
   my $self = shift;
   
-  $self->{executor}   = Ok::MockIt::Executor::SimpleReturn->new('TEST');
+  $self->{mocked_method_call} = Ok::MockIt::MockedMethodCall->new({object => bless({}, 'Ok::MockIt::Mock'), method => 'meth'});
   $self->{registrar}  = Ok::MockIt::MethodCallRegistrar->new;
 }
 
 sub construction_with_arguments_works : Test('new') {
   my $self = shift;
   
-  my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}, registrar => $self->{registrar}});
+  my $generator = Ok::MockIt::InterceptorRegistrar->new({mocked_method_call => $self->{mocked_method_call}, registrar => $self->{registrar}});
   
-  assert_isa('Ok::MockIt::InterceptorStubGenerator', $generator);
+  assert_isa('Ok::MockIt::InterceptorRegistrar', $generator);
 }
 
-sub dies_when_no_executor_provided : Test('new') {
+sub dies_when_no_mock_method_call_provided : Test('new') {
   my $self = shift;
   
-  assert_raises("Executor must be provided when instanciating InterceptorStub",  sub { Ok::MockIt::InterceptorStubGenerator->new({registrar => $self->{registrar}}) });
+  assert_raises("MockedMethodCall must be provided when instanciating InterceptorRegistrar",  sub { Ok::MockIt::InterceptorRegistrar->new({registrar => $self->{registrar}}) });
 }
 
 sub dies_when_no_registrar_provided : Test('new') {
   my $self = shift;
   
-  assert_raises("MethodCallRegistrar must be provided when instanciating InterceptorStub", sub {Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}});} );
+  assert_raises("MethodCallRegistrar must be provided when instanciating InterceptorRegistrar", sub {Ok::MockIt::InterceptorRegistrar->new({mocked_method_call => $self->{mocked_method_call}});} );
 }
 
 sub generated_stub_class_registers_new_method_interceptor : Test('when') {
@@ -45,16 +45,15 @@ sub generated_stub_class_registers_new_method_interceptor : Test('when') {
   
   my $registrar = Fake::Registrar->new();
   
-  my $generator = Ok::MockIt::InterceptorStubGenerator->new({executor => $self->{executor}, registrar => $registrar });
+  my $generator = Ok::MockIt::InterceptorRegistrar->new({mocked_method_call => $self->{mocked_method_call}, registrar => $registrar });
   my $object = bless {}, 'InterceptorTestClass';
   
-  $generator->when($object)->test_method('test_arg');
+  $generator->do_return('test_arg');
   
   my $registered_interceptor = $registrar->{registered_interceptor};
   
   assert_isa('Ok::MockIt::MethodInterceptor', $registered_interceptor);
-  assert_equals('test_method', $registered_interceptor->mocked_method_call->method);
-  assert_deep_equals(['test_arg'], $registered_interceptor->mocked_method_call->args);
+  assert_equals($self->{mocked_method_call}, $registered_interceptor->mocked_method_call);
 }
 
 

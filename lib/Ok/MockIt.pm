@@ -10,7 +10,7 @@ Version 0.01
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use strict;
 use warnings;
@@ -21,9 +21,7 @@ use Ok::MockIt::MethodCallRegistrar;
 use Ok::MockIt::StubClassGenerator;
 use Ok::MockIt::VerifierGenerator;
 use Ok::MockIt::MockInstanceProperty;
-use Ok::MockIt::InterceptorStubGenerator;
-use Ok::MockIt::Executor::SimpleReturn;
-use Ok::MockIt::Executor::Die;
+use Ok::MockIt::WhenHandler;
 
 use Exporter qw(import);
 
@@ -43,14 +41,11 @@ sub mock_it {
 
 sub mock_as_property {
   
-  my $property_name = shift;
-  
-  my $class_to_mock = shift;
+  my ($property_name, $class_to_mock) = @_;
   
   my $caller = caller(0);
  
   my $stub_class = make_stub($class_to_mock, @_);
-
   _generate_caller_property($caller, $property_name, $stub_class);
 }
 
@@ -66,16 +61,10 @@ sub _get_or_create_registrar {
   return $REGISTRAR;
 }
 
-sub do_return {
+sub when {
+  my $mock_object = shift;
   
-  my $executor = Ok::MockIt::Executor::SimpleReturn->new(@_);
-  return Ok::MockIt::InterceptorStubGenerator->new({executor => $executor, registrar => _get_or_create_registrar()});
-}
-
-sub do_die {
-  
-  my $executor = Ok::MockIt::Executor::Die->new(@_);
-  return Ok::MockIt::InterceptorStubGenerator->new({executor => $executor, registrar => _get_or_create_registrar()});
+  return Ok::MockIt::WhenHandler->new({object => $mock_object, registrar => _get_or_create_registrar()});
 }
 
 sub was_called {

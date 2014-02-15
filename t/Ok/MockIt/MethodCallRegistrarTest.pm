@@ -3,7 +3,8 @@ package Ok::MockIt::MethodCallRegistrarTest;
 use strict;
 use warnings;
 
-use base qw(Test::Unit::TestCase);
+use Ok::Test;
+use Test::Assert ':assert';
 
 use Ok::MockIt::MethodCallRegistrar;
 use Ok::MockIt::MockedMethodCall;
@@ -20,7 +21,7 @@ sub _get_method_call {
 
 }
 
-sub test_register_call__saves_call_correctly {
+sub saves_call_correctly : Test('register_call') {
   my $self = shift;
   
   my $method_call = $self->_get_method_call;
@@ -30,11 +31,11 @@ sub test_register_call__saves_call_correctly {
   
   my $call = $history->matches($method_call);
   
-  $self->assert($call);
+  assert_true($call);
 
 }
 
-sub test_register_interceptor__adds_new_interceptor {
+sub adds_new_interceptor : Test('register_interceptor') {
   my $self = shift;
   
   my $registrar = Ok::MockIt::MethodCallRegistrar->new;
@@ -44,7 +45,7 @@ sub test_register_interceptor__adds_new_interceptor {
   
   my $found = $registrar->find_interceptor($interceptor->mocked_method_call);
   
-  $self->assert_equals($interceptor, $found);
+  assert_equals($interceptor, $found);
 }
 
 sub _get_interceptor {

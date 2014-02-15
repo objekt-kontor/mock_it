@@ -14,7 +14,6 @@ sub new {
   
   my $args = shift;
   
-  
   my $self = bless {
     object => exists($args->{object}) && ref($args->{object}) && $args->{object}->isa('Ok::MockIt::Mock') ? $args->{object} : undef,
     method => $args->{method},

@@ -105,6 +105,25 @@ sub when_and_do_return_correctly_track_method_call : Test('-', 'Acceptance'){
   assert_true(Ok::MockIt::was_called($mock)->sample_method(1));
 }
 
+sub when_and_do_return_can_overwrite_existing_static_method : Test('-', 'Acceptance') {
+  my $self = shift;
+  
+  my $expected_return_value = "EXPECTED_RETURN";
+  
+  Ok::MockIt::when('MockPackage1')->method_that_returns_5()->do_return($expected_return_value);
+  
+  assert_str_equals($expected_return_value, MockPackage1->method_that_returns_5);
+}
+
+sub when_and_do_return_call_overwritten_static_method_when_arguments_do_not_match : Test('-', 'Acceptance') {
+  my $self = shift;
+  
+  Ok::MockIt::when('MockPackage1')->method_that_returns_5(1)->do_return(3);
+  
+  assert_equals(3, MockPackage1->method_that_returns_5(1)); 
+  assert_equals(5, MockPackage1->method_that_returns_5(3)); 
+}
+
 ###########################################
 package ModuleWithExportedFunction;
 
@@ -115,11 +134,17 @@ sub test_exported_function {
   die 'test_exported function called';
 }
 
+
+
 ###########################################
 package MockPackage1;
 
 sub method_that_dies {
   die 'arrgghhhh method that dies 1';
+}
+
+sub method_that_returns_5 {
+  return 5;
 }
 
 ###########################################

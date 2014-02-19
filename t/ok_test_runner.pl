@@ -9,6 +9,6 @@ Ok::Test::Runner::load_tests($FindBin::Bin);
 use Test::More;
 plan tests => scalar(Ok::Test::get_loaded_tests) ;
 
-my $runner = new Ok::Test::Runner({listener => Ok::Test::TAPReporter->new});
+my $runner = Ok::Test::Runner->new({listener => Ok::Test::TAPReporter->new});
 
 $runner->run;

@@ -107,5 +107,4 @@ sub equals_is_false_when_args_in_one_object_are_undef : Test('equals') {
 }
 
 
-
 1;

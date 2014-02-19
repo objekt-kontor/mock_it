@@ -21,7 +21,8 @@ sub AUTOLOAD {
     my ($p,$m) = our $AUTOLOAD =~ /(.*)::(.*)/;
     
     my $method_call = Ok::MockIt::MockedMethodCall->new({object => $self->object, method => $m, args => [@_]});
-    return Ok::MockIt::InterceptorRegistrar->new({mocked_method_call => $method_call, registrar => $self->registrar});
+    my $registrar = Ok::MockIt::InterceptorRegistrar->new({mocked_method_call => $method_call, registrar => $self->registrar});
+    
 }
 
 1;

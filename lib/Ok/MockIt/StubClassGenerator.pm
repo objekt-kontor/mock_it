@@ -13,8 +13,6 @@ sub new {
   bless {call_registrar => $call_registrar}, $class;
 }
 
-
-
 sub call_registrar { shift->{call_registrar} } 
 
 sub generate_stubclass {

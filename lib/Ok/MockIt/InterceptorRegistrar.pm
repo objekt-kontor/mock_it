@@ -52,17 +52,19 @@ sub _overwrite_static_method {
   
   my $mocked_method = sub {
     my @args = @_;
-    my $object = $self->_is_function_call($args[0]) ? undef : shift(@args);
+    
+    my $object = $self->_is_function_call($args[0]) ? $self->mocked_method_call->package_name : shift(@args);
+    
     my $call = Ok::MockIt::MockedMethodCall->new({object => $object, method => $self->mocked_method_call->method, args => [@args]});
-    my $hmm = $call->equals($self->mocked_method_call);
+    
     
     $self->registrar->register_call($call);
     my $interceptor = $self->registrar->find_interceptor($call);
     
-    return Ok::MockIt::Mock->execute_function($self->mocked_method_call->full_method_name, @_) unless $interceptor;
+    return Ok::MockIt::Class::execute_function($self->mocked_method_call->full_method_name, @_) unless $interceptor;
     return $interceptor->execute;
   };
-  Ok::MockIt::Mock->overwrite_function($self->mocked_method_call->full_method_name, $mocked_method);
+  Ok::MockIt::Class::overwrite_function($self->mocked_method_call->full_method_name, $mocked_method);
 }
 
 sub _is_function_call {

@@ -124,6 +124,32 @@ sub when_and_do_return_call_overwritten_static_method_when_arguments_do_not_matc
   assert_equals(5, MockPackage1->method_that_returns_5(3)); 
 }
 
+sub when_and_do_return_respond_correctly_when_function_called_statically : Test('-','Acceptance') {
+  my $self = shift;
+  
+  Ok::MockIt::when('MockPackage1')->method_that_returns_5(2)->do_return(3);
+  
+  assert_equals(3, MockPackage1::method_that_returns_5(2));
+}
+
+
+sub reset_mocks_returns_class_methods_to_their_orignal_state : Test('-', 'Acceptance') {
+  my $self = shift;
+  
+  Ok::MockIt::when('MockPackage1')->method_that_returns_5(2)->do_return(2);
+  
+  
+  assert_num_equals(2, MockPackage1->method_that_returns_5(2));
+  Ok::MockIt::reset_mocks();
+  
+  assert_num_equals(5, MockPackage1->method_that_returns_5(2));
+  
+}
+
+sub tear_down {
+  Ok::MockIt::Class::reset_mocks();
+}
+
 ###########################################
 package ModuleWithExportedFunction;
 

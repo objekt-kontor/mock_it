@@ -25,7 +25,7 @@ use Ok::MockIt::WhenHandler;
 
 use Exporter qw(import);
 
-our @EXPORT_OK = qw(mock_it do_return do_die was_called);
+our @EXPORT_OK = qw(mock_it mock_as_property when was_called reset_mocks);
 
 my $REGISTRAR;
 
@@ -76,4 +76,7 @@ sub was_called {
   return Ok::MockIt::VerifierGenerator->new($args)->create_verifier();
 }
 
+sub reset_mocks {
+  Ok::MockIt::Class::reset_mocks();
+}
 1

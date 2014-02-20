@@ -148,7 +148,7 @@ sub reset_mocks_returns_class_methods_to_their_orignal_state : Test('-', 'Accept
 
 sub tear_down {
   Ok::MockIt::Class::reset_mocks();
-}
+} 
 
 ###########################################
 package ModuleWithExportedFunction;

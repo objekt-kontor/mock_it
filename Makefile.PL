@@ -17,16 +17,18 @@ my $params = {
         'Class::Inspector'          => 0,
         'Data::Compare'             => 0,
         'Exporter'                  => 0,
-        'File::Find'                => 0,
-        'FindBin'                   => 0,
         'Module::Load::Conditional' => 0,
         'Scalar::Util'              => 0,
-        'Test::Assert'              => 0,
-        'Test::More'                => 0,      
+    },
+    TEST_REQUIRES => {
+      'FindBin'                   => 0,
+      'File::Find'                => 0,
+      'Test::Assert'              => 0,
+      'Test::More'                => 0,      
     },
     dist             => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean            => { FILES => 'Ok-MockIt-*' },
-    test             => { TESTS => 't/ok_test_runner.pl'}
+    test             => { TESTS => "t/*.t" }
 };
 
 $params->{MIN_PERL_VERSION} = 5.008 if ($ExtUtils::MakeMaker::VERSION ge '6.47_02'); 

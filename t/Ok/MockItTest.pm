@@ -132,6 +132,24 @@ sub when_and_do_return_respond_correctly_when_function_called_statically : Test(
   assert_equals(3, MockPackage1::method_that_returns_5(2));
 }
 
+sub can_insert_methods_into_classes_where_are_not_already_defined : Test('-', 'Acceptance') {
+  my $self = shift;
+  
+  Ok::MockIt::when('MockPackage1')->new_method->do_return("new_method");
+  
+  assert_str_equals("new_method", MockPackage1->new_method);
+}
+
+sub reset_deletes_newly_created_methods : Test('-', 'Acceptance') {
+  my $self = shift;
+  
+  Ok::MockIt::when('MockPackage1')->new_method2->do_return("new_method2");
+  
+  assert_str_equals("new_method2", MockPackage1->new_method2);
+  Ok::MockIt::reset_mocks();
+  assert_raises("Can't locate object method \"new_method\" via package \"MockPackage1\"", sub { MockPackage1->new_method });
+  
+}
 
 sub reset_mocks_returns_class_methods_to_their_orignal_state : Test('-', 'Acceptance') {
   my $self = shift;
@@ -145,6 +163,7 @@ sub reset_mocks_returns_class_methods_to_their_orignal_state : Test('-', 'Accept
   assert_num_equals(5, MockPackage1->method_that_returns_5(2));
   
 }
+
 
 sub tear_down {
   Ok::MockIt::Class::reset_mocks();

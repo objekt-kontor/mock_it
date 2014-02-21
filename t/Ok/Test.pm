@@ -362,11 +362,11 @@ sub on_pass {
 }
 
 sub on_fail {
-  ok(0, $_[1]->cannonical_method_name);
+  ok(0, $_[1]->cannonical_method_name . "\n" . $_[1]->error);
 }
 
 sub on_error {
-  ok(0, $_[1]->cannonical_method_name);
+  ok(0, $_[1]->cannonical_method_name . "\n" . $_[1]->error->origin_exception);
 }
 
 1

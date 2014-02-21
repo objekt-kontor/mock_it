@@ -50,7 +50,13 @@ sub overwrite_function {
   {
     no strict 'refs';
     no warnings 'redefine';
-    $OVERWRITTEN_NAMESPACES->{ $full_method_name } = *{ $full_method_name }{CODE} unless exists $OVERWRITTEN_NAMESPACES->{$full_method_name};
+    
+    if(! *{ $full_method_name }{CODE} ) {
+      $OVERWRITTEN_NAMESPACES->{ $full_method_name } = 'DELETE';
+    } else {
+     
+      $OVERWRITTEN_NAMESPACES->{ $full_method_name } = *{ $full_method_name }{CODE} unless exists $OVERWRITTEN_NAMESPACES->{$full_method_name};
+    }
     *{$full_method_name} = $new_method;
   }
 }
@@ -65,7 +71,13 @@ sub execute_function {
 sub reset_mocks {
   
   for my $full_method_name (keys(%$OVERWRITTEN_NAMESPACES)) {
-    *{$full_method_name} = $OVERWRITTEN_NAMESPACES->{$full_method_name};
+    if  (ref $OVERWRITTEN_NAMESPACES->{$full_method_name}) {
+      
+      *{$full_method_name} = $OVERWRITTEN_NAMESPACES->{$full_method_name};
+    } else {
+      my ($pack, $meth) = $full_method_name =~ /(.*)::(.*)/;
+      delete ${$pack. "::"}{$meth};
+    }
     delete $OVERWRITTEN_NAMESPACES->{$full_method_name};
   }
 }
